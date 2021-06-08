@@ -2,7 +2,7 @@ defmodule Enqueuer do
   use GenServer
 
   def start_link(initial_state \\ []) do
-    GenServer.start_link(__MODULE__, initial_state)
+    GenServer.start_link(__MODULE__, initial_state, name: __MODULE__)
   end
 
   @impl true
@@ -10,12 +10,16 @@ defmodule Enqueuer do
     {:ok, state}
   end
 
-  def enqueue(pid, element) do
-    GenServer.cast(pid, {:enqueue, element})
+  @spec enqueue(Integer.t()) :: :ok | :error
+  def enqueue(element) when is_integer(element) do
+    GenServer.cast(__MODULE__, {:enqueue, element})
   end
 
-  def dequeue(pid) do
-    GenServer.call(pid, :dequeue)
+  def enqueue(_), do: :error
+
+  @spec dequeue :: Integer.t()
+  def dequeue() do
+    GenServer.call(__MODULE__, :dequeue)
   end
 
   @impl true
